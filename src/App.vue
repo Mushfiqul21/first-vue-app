@@ -49,6 +49,10 @@ const update = (task) => {
   }
   cancelEdit()
 }
+
+const toggleFav = (task) => {
+  task.favorite = !task.favorite;
+}
 </script>
 
 <template>
@@ -68,6 +72,7 @@ const update = (task) => {
         </template>
         <template v-else>
           <button class="delete" @click="removeTask(task.id)">X</button>
+          <button class="fav" @click = "toggleFav(task)">{{ task.favorite ? '❤️': '🤍' }}</button>
           <input type="checkbox" v-model="task.completed">
           <span @click="startEdit(task)">{{ task.text }}</span>
         </template>
@@ -78,7 +83,7 @@ const update = (task) => {
 </template>
 
 <style scoped>
-.app {
+.wrapper {
   max-width: 500px;
   margin: 2rem;
   font-family: Arial, Helvetica, sans-serif;
@@ -141,5 +146,14 @@ button {
   border: 1px solid #333;
   border-radius: 6px;
   font-size: 1rem;
+}
+.fav{
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.2rem;
+}
+.fav:hover{
+  transform: scale(1.2);
 }
 </style>

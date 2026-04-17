@@ -22,8 +22,33 @@ const addTask = () => {
 }
 
 const removeTask = (id) => {
-    tasks.value = tasks.value.filter((t)=>t.id != id)
+  tasks.value = tasks.value.filter((t) => t.id != id)
+}
+
+const editingId = ref(null)
+const editingBuffer = ref('')
+
+const startEdit = (task) => {
+  editingId.value = task.id;
+  editingBuffer.value = task.text;
+}
+
+const cancelEdit = () => {
+  editingId.value = null;
+  editingBuffer.value = "";
+}
+const update = (task) => {
+  if (editingId.value !== task.id) {
+    return;
   }
+  const trimmed = editingBuffer.value.trim()
+  if (!trimmed) {
+    removeTask(task.id)
+  } else {
+    task.text = trimmed
+  }
+  cancelEdit()
+}
 </script>
 
 <template>
@@ -35,10 +60,18 @@ const removeTask = (id) => {
     </div>
 
     <ul class="task-list">
-      <li v-for="task in tasks" :key="task.id" :class="{done: task.completed}">
-        <button class="delete" @click="removeTask(task.id)">X</button>
-        <input type="checkbox" v-model="task.completed">
-        <span>{{ task.text }}</span>
+      <li v-for="task in tasks" :key="task.id" :class="{ done: task.completed, editing: editingId === task.id }">
+        <template v-if="editingId === task.id">
+          <input type="text" v-model="editingBuffer" class="edit-input">
+          <button @click="update(task)">✓</button> <!-- ✅ save -->
+          <button @click="cancelEdit">✕</button>
+        </template>
+        <template v-else>
+          <button class="delete" @click="removeTask(task.id)">X</button>
+          <input type="checkbox" v-model="task.completed">
+          <span @click="startEdit(task)">{{ task.text }}</span>
+        </template>
+
       </li>
     </ul>
   </div>
@@ -72,12 +105,12 @@ button {
   cursor: pointer;
 }
 
-.task-list{
+.task-list {
   list-style: none;
   padding: 0;
 }
 
-.task-list li{
+.task-list li {
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -86,17 +119,27 @@ button {
   border-bottom: 1px solid #ccc;
 }
 
-.task-list li.done span{
+.task-list li.done span {
   text-decoration: line-through;
   opacity: 0.6;
 }
-.delete{
+
+.delete {
   background: #e53e3e;
   color: white;
-  border:none;
+  border: none;
   border-radius: 4px;
 }
-.delete:hover{
+
+.delete:hover {
   background: #c53030;
+}
+
+.editing .edit-input {
+  flex-grow: 1;
+  padding: 0.5rem;
+  border: 1px solid #333;
+  border-radius: 6px;
+  font-size: 1rem;
 }
 </style>

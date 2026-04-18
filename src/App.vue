@@ -1,5 +1,13 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
+const activeFilter = ref('all')
+const allFilter = ref(['all', 'completed', 'incomplete', 'favorite'])
+const filterTaks = computed(() => {
+  if(activeFilter.value === 'completed') return tasks.value.filter(t => t.completed)
+  if(activeFilter.value === 'incomplete') return tasks.value.filter(t => !t.completed)
+  if (activeFilter.value === 'favorite') return tasks.value.filter(t => t.favorite)
+  return tasks.value;
+})
 const newtask = ref('')
 const tasks = ref([])
 
@@ -63,8 +71,14 @@ const toggleFav = (task) => {
       <button @click="addTask">Add</button>
     </div>
 
+    <div class="filters">
+      <button v-for="f in allFilter" :key="f" :class="{ active:activeFilter === f }" @click="activeFilter = f">
+         {{ f }}
+      </button>
+    </div>
+
     <ul class="task-list">
-      <li v-for="task in tasks" :key="task.id" :class="{ done: task.completed, editing: editingId === task.id }">
+      <li v-for="task in filterTaks" :key="task.id" :class="{ done: task.completed, editing: editingId === task.id }">
         <template v-if="editingId === task.id">
           <input type="text" v-model="editingBuffer" class="edit-input">
           <button @click="update(task)">✓</button> <!-- ✅ save -->
@@ -155,5 +169,21 @@ button {
 }
 .fav:hover{
   transform: scale(1.2);
+}
+.filters {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.filters button {
+  text-transform: capitalize;
+  background: none;
+}
+
+.filters button.active {
+  background: #3b82f6;
+  color: white;
+  border-color: #3b82f6;
 }
 </style>
